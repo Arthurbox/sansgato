@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "604730974010",
+    "project_id": "sansgato-2876e",
+    "storage_bucket": "sansgato-2876e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:604730974010:android:e34f1144bf5e6b94063a03",
+        "android_client_info": {
+          "package_name": "com.example.sansgato"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "604730974010-hepesf13l1t6f99og9vtrciedfbta9ke.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sansgato",
+            "certificate_hash": "4444bbe9fb5d4f4e648d8d02d93ff9894ce3a6c7"
+          }
+        },
+        {
+          "client_id": "604730974010-gqdtusugoh48h7f16obiqghrec8nd4q7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDneiYbHr-167F9ChGyY3BcUP6PsTz4MlQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "604730974010-gqdtusugoh48h7f16obiqghrec8nd4q7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
