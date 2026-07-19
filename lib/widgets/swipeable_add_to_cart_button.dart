@@ -21,26 +21,10 @@ class _SwipeableAddToCartButtonState extends State<SwipeableAddToCartButton> {
   int _swipeState = 0; // 0: initial, 1: loading, 2: success
 
   @override
-  void initState() {
-    super.initState();
-    if (widget.isAdded) {
-      _swipeState = 2;
-    }
-  }
-
-  @override
   void didUpdateWidget(SwipeableAddToCartButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.isAdded != widget.isAdded) {
-      if (widget.isAdded) {
-        setState(() { _swipeState = 2; });
-      } else {
-        setState(() {
-          _swipeState = 0;
-          _swipePosition = 0;
-        });
-      }
-    }
+    // On ne force plus l'état en fonction de isAdded
+    // isAdded sert juste pour le style visuel
   }
 
   void _handleSwipe(DragUpdateDetails details, double maxWidth) {
@@ -63,6 +47,14 @@ class _SwipeableAddToCartButtonState extends State<SwipeableAddToCartButton> {
       if (mounted) {
         if (success) {
           setState(() { _swipeState = 2; });
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            if (mounted) {
+              setState(() {
+                _swipeState = 0;
+                _swipePosition = 0;
+              });
+            }
+          });
         } else {
           setState(() {
             _swipeState = 0;
@@ -124,9 +116,9 @@ class _SwipeableAddToCartButtonState extends State<SwipeableAddToCartButton> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const SizedBox(width: 12),
+                            SizedBox(width: maxWidth < 130 ? 6 : 12),
                             Text(
-                              'Glisser pour ajouter',
+                              maxWidth < 130 ? 'Ajouter' : 'Glisser pour ajouter',
                               style: TextStyle(
                                 color: widget.isDark ? Colors.white : Colors.grey.shade800, 
                                 fontWeight: FontWeight.bold, 
@@ -147,7 +139,7 @@ class _SwipeableAddToCartButtonState extends State<SwipeableAddToCartButton> {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1A1A1A),
+                              color: widget.isAdded ? const Color(0xFF00A9C1) : const Color(0xFF1A1A1A),
                               borderRadius: BorderRadius.circular(22),
                               boxShadow: [
                                   BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(2, 0))

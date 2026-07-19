@@ -5,6 +5,7 @@ import '../models/product.dart';
 import '../providers/product_provider.dart';
 import '../providers/cart_provider.dart';
 import '../widgets/swipeable_add_to_cart_button.dart';
+import '../widgets/feed_skeleton_loader.dart';
 import 'login_screen.dart';
 import 'product_detail_screen.dart';
 
@@ -52,7 +53,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   }
                   return _buildFeed(products, isDark);
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => FeedSkeletonLoader(isDark: isDark),
                 error: (err, stack) => Center(child: Text('Erreur: $err')),
               ),
             ),
@@ -202,10 +203,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final textColor = isDark ? Colors.white : const Color(0xFF1A1A1A);
     final subColor = isDark ? Colors.grey[400] : Colors.grey[600];
 
+    // Vérifier si le produit est dans le panier
+    final cartAsync = ref.watch(cartProvider);
+    bool isAdded = false;
+    if (variant != null && cartAsync.value != null) {
+      for (var cartItem in cartAsync.value!.items) {
+        if (cartItem.itemType == 'productvariant' && cartItem.item.id == variant.id) {
+          isAdded = true;
+          break;
+        }
+      }
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: isAdded ? Border.all(color: const Color(0xFF00A9C1), width: 1.5) : null,
         boxShadow: [
           if (!isDark)
             BoxShadow(
@@ -300,7 +314,51 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ],
                   const SizedBox(height: 6),
-                  _buildRatingRow(4.8, isDark),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _buildRatingRow(4.8, isDark),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: SizedBox(
+                          height: 36, // Slightly smaller height for portrait cards
+                          child: SwipeableAddToCartButton(
+                            isDark: isDark,
+                            isAdded: isAdded,
+                            onSwipe: () async {
+                              if (variant == null) return false;
+                              
+                              final error = await ref.read(cartProvider.notifier).addItem(
+                                contentType: 'productvariant',
+                                objectId: variant.id,
+                                quantite: 1,
+                              );
+                              
+                              if (error == null) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('${product.nomComplet} ajouté !'),
+                                      backgroundColor: const Color(0xFF00A9C1),
+                                      duration: const Duration(milliseconds: 1500),
+                                    ),
+                                  );
+                                }
+                                return true;
+                              } else {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(error), backgroundColor: Colors.redAccent),
+                                  );
+                                }
+                                return false;
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -332,6 +390,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: isAdded ? Border.all(color: const Color(0xFF00A9C1), width: 1.5) : null,
         boxShadow: [
           if (!isDark)
             BoxShadow(

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/cart.dart';
 import '../providers/cart_provider.dart';
 import '../services/auth_service.dart';
+import '../widgets/cart_skeleton_loader.dart';
 import 'checkout_screen.dart';
 
 class CartScreen extends ConsumerWidget {
@@ -19,9 +20,7 @@ class CartScreen extends ConsumerWidget {
       backgroundColor: bg,
       body: SafeArea(
         child: cartAsync.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(color: Color(0xFF00A9C1)),
-          ),
+          loading: () => const CartSkeletonLoader(),
           error: (err, _) => _buildError(context, ref, err.toString()),
           data: (cart) {
             if (cart == null || cart.items.isEmpty) {
