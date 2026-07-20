@@ -3,7 +3,10 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     CartView, CartItemView, CheckoutView, OrderListView, OrderDetailView,
     CategoryListView, ProductListView, ProductDetailView,
-    KitListView, KitDetailView, ActivePromotionsView
+    KitListView, KitDetailView, ActivePromotionsView,
+    NotificationListView, NotificationMarkReadView,
+    FavoriteListView, FavoriteToggleView,
+    AvisListCreateView
 )
 from .admin_views import (
     AdminProductViewSet, AdminProductVariantViewSet, AdminCategoryViewSet,
@@ -33,5 +36,9 @@ urlpatterns = [
     path("checkout/", CheckoutView.as_view(), name="checkout"),
     path("orders/", OrderListView.as_view(), name="order-list"),
     path("orders/<int:pk>/", OrderDetailView.as_view(), name="order-detail"),
-
+    path("notifications/", NotificationListView.as_view(), name="notification-list"),
+    path("notifications/<int:pk>/read/", NotificationMarkReadView.as_view(), name="notification-read"),
+    path("favorites/", FavoriteListView.as_view(), name="favorite-list"),
+    path("favorites/<int:pk>/toggle/", FavoriteToggleView.as_view(), name="favorite-toggle"),
+    path("products/<int:pk>/avis/", AvisListCreateView.as_view(), name="product-avis"),
 ]

@@ -1,13 +1,14 @@
 from rest_framework import serializers
 from .models import (
     Category, Color, Brand, Product, VariantImage, ProductVariant, Kit, KitItem,
-    Cart, CartItem, Order, OrderItem, AdresseLivraison, AdresseExpedition
+    Cart, CartItem, Order, OrderItem, AdresseLivraison, AdresseExpedition,
+    Notification, AvisClient
 )
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["id", "nom", "code", "description"]
+        fields = ["id", "nom", "code", "layout_type", "description"]
 
 
 class ColorSerializer(serializers.ModelSerializer):
@@ -54,7 +55,7 @@ class ProductVariantSerializer(serializers.ModelSerializer):
         ]
 
     def get_en_promotion(self, obj):
-        return obj.prix_promo is not None
+        return obj.get_active_promotion() is not None
 
     def get_promo_valeur(self, obj):
         promo = obj.get_active_promotion()
@@ -72,10 +73,12 @@ class ProductMinimalSerializer(serializers.ModelSerializer):
     categorie = CategorySerializer(read_only=True)
     marque = BrandSerializer(read_only=True)
     variantes = ProductVariantSerializer(many=True, read_only=True)
+    note_moyenne = serializers.FloatField(read_only=True)
+    avis_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Product
-        fields = ["id", "categorie", "marque", "modele", "nom_complet", "etat", "variantes"]
+        fields = ["id", "categorie", "marque", "modele", "nom_complet", "etat", "variantes", "note_moyenne", "avis_count"]
 
 
 class KitItemSerializer(serializers.ModelSerializer):
@@ -117,13 +120,15 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     categorie = CategorySerializer(read_only=True)
     marque = BrandSerializer(read_only=True)
     variantes = ProductVariantSerializer(many=True, read_only=True)
+    note_moyenne = serializers.FloatField(read_only=True)
+    avis_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Product
         fields = [
             "id", "categorie", "marque", "modele", "nom_complet", "slug",
             "description", "caracteristiques", "etat", "variantes",
-            "created_at", "updated_at"
+            "note_moyenne", "avis_count", "created_at", "updated_at"
         ]
 
 
@@ -224,6 +229,12 @@ class CheckoutSerializer(serializers.Serializer):
         return data
 
 
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ["id", "titre", "message", "type", "est_lu", "created_at"]
+
+
 class OrderItemSerializer(serializers.ModelSerializer):
     item = GenericItemRelatedField(read_only=True)
     total_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
@@ -252,3 +263,10 @@ class OrderSerializer(serializers.ModelSerializer):
             "items", "adresse_livraison", "adresse_expedition", "total_price",
             "created_at", "updated_at"
         ]
+
+class AvisClientSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(source='user.get_full_name', read_only=True, default='Anonyme')
+
+    class Meta:
+        model = AvisClient
+        fields = ['id', 'user_name', 'note', 'commentaire', 'created_at']

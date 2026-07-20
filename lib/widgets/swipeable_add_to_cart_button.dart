@@ -139,13 +139,21 @@ class _SwipeableAddToCartButtonState extends State<SwipeableAddToCartButton> {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: widget.isAdded ? const Color(0xFF00A9C1) : const Color(0xFF1A1A1A),
+                              color: widget.isAdded 
+                                  ? const Color(0xFF00A9C1) 
+                                  : (widget.isDark ? const Color(0xFFE0E0E0) : const Color(0xFF1A1A1A)),
                               borderRadius: BorderRadius.circular(22),
                               boxShadow: [
                                   BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(2, 0))
                               ]
                             ),
-                            child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 18),
+                            child: Icon(
+                              widget.isAdded ? Icons.shopping_cart : Icons.shopping_cart_outlined, 
+                              color: widget.isAdded 
+                                  ? Colors.white 
+                                  : (widget.isDark ? const Color(0xFF1A1A1A) : Colors.white), 
+                              size: 18,
+                            ),
                           ),
                         ),
                       ),

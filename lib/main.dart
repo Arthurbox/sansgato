@@ -7,6 +7,8 @@ import 'screens/main_scaffold.dart';
 import 'services/api_client.dart';
 import 'services/auth_service.dart';
 import 'providers/theme_provider.dart';
+import 'theme/app_theme.dart';
+import 'utils/global_navigator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,23 +40,10 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Sansgato',
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
       themeMode: themeMode,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF00A9C1),
-          primary: const Color(0xFF00A9C1),
-        ),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.fromSeed(
-          brightness: Brightness.dark,
-          seedColor: const Color(0xFF00A9C1),
-          primary: const Color(0xFF00A9C1),
-        ),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
       home: AuthService.isAuthenticated ? const MainScaffold() : const LoginScreen(),
     );
   }

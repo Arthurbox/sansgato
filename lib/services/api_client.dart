@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'auth_service.dart';
+import '../utils/global_navigator.dart';
 
 class ApiClient {
   static final Dio _dio = Dio(
@@ -24,7 +26,20 @@ class ApiClient {
           return handler.next(options);
         },
         onError: (DioException e, handler) {
-          // Gérer le refresh token ici plus tard si nécessaire
+          if (e.response?.statusCode == 401) {
+            // Token expiré ou invalide
+            final context = navigatorKey.currentContext;
+            if (context != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Session expirée. Veuillez vous reconnecter.'),
+                  backgroundColor: Colors.red,
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            }
+            AuthService.logoutAndRedirect();
+          }
           return handler.next(e);
         },
       ),

@@ -53,7 +53,10 @@ class _AdminPromotionCreateScreenState extends State<AdminPromotionCreateScreen>
       final products = await ProductService.getProducts();
       List<ProductVariant> variants = [];
       for (var p in products) {
-        variants.addAll(p.variantes);
+        for (var v in p.variantes) {
+          v.productName = p.nomComplet;
+          variants.add(v);
+        }
       }
       final kits = await ProductService.getKits();
       
@@ -199,7 +202,7 @@ class _AdminPromotionCreateScreenState extends State<AdminPromotionCreateScreen>
                         decoration: const InputDecoration(labelText: 'Variante à promouvoir'),
                         isExpanded: true,
                         initialValue: _selectedVariant,
-                        items: _allVariants.map((v) => DropdownMenuItem(value: v, child: Text('${v.desc} (ID: ${v.id})'))).toList(),
+                        items: _allVariants.map((v) => DropdownMenuItem(value: v, child: Text('${v.productName ?? 'Produit'} - ${v.desc} (ID: ${v.id})', overflow: TextOverflow.ellipsis))).toList(),
                         onChanged: (val) => setState(() => _selectedVariant = val),
                       )
                     else

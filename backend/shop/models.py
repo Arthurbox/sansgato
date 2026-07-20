@@ -8,8 +8,13 @@ from django.utils.text import slugify
 
 
 class Category(models.Model):
+    LAYOUT_CHOICES = [
+        ('portrait', 'Portrait'),
+        ('landscape', 'Paysage'),
+    ]
     nom = models.CharField(max_length=100, unique=True, verbose_name="Nom")
     code = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name="Code Technique (ex: SMARTPHONE)")
+    layout_type = models.CharField(max_length=20, choices=LAYOUT_CHOICES, default='portrait', verbose_name="Type d'affichage")
     description = models.TextField(blank=True, verbose_name="Description")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -85,6 +90,11 @@ class Product(models.Model):
         default='neuf',
         verbose_name="État"
     )
+    note_etat_occasion = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        verbose_name="Note de l'état (sur 10)",
+        help_text="Requis si l'état est 'Occasion'. Note de 1 à 10."
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -96,7 +106,19 @@ class Product(models.Model):
     def __str__(self):
         return self.nom_complet
 
+    @property
+    def note_moyenne(self):
+        avis = self.avis.all()
+        if not avis:
+            return 0.0
+        return sum(a.note for a in avis) / len(avis)
+
+    @property
+    def avis_count(self):
+        return self.avis.count()
+
     def save(self, *args, **kwargs):
+        self.clean()
         if not self.slug and self.marque and self.modele:
             base_slug = slugify(f"{self.marque.nom} {self.modele}")
             self.slug = base_slug
@@ -105,6 +127,16 @@ class Product(models.Model):
                 self.slug = f"{base_slug}-{counter}"
                 counter += 1
         super().save(*args, **kwargs)
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        super().clean()
+        if self.etat == 'occasion' and self.note_etat_occasion is None:
+            raise ValidationError({'note_etat_occasion': "Ce champ est obligatoire pour un produit d'occasion."})
+        if self.note_etat_occasion is not None and (self.note_etat_occasion < 1 or self.note_etat_occasion > 10):
+            raise ValidationError({'note_etat_occasion': "La note doit être comprise entre 1 et 10."})
+        if self.etat == 'neuf' and self.note_etat_occasion is not None:
+            self.note_etat_occasion = None
 
 
 class VariantImage(models.Model):
@@ -532,3 +564,63 @@ class Promotion(models.Model):
         elif self.type_reduction == 'montant':
             return max(0, prix_initial - self.valeur)
         return prix_initial
+
+
+class AvisClient(models.Model):
+    """
+    Modèle pour les avis clients sur les produits.
+    Non fonctionnel pour l'instant (les notes de test sont gardées), mais la table est prête.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='avis', verbose_name="Utilisateur")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='avis', verbose_name="Produit")
+    note = models.PositiveSmallIntegerField(verbose_name="Note", help_text="Note de 1 à 5")
+    commentaire = models.TextField(blank=True, null=True, verbose_name="Commentaire")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'avis_clients'
+        verbose_name = "Avis Client"
+        verbose_name_plural = "Avis Clients"
+        ordering = ['-created_at']
+        unique_together = ('user', 'product') # Un seul avis par utilisateur par produit
+
+    def __str__(self):
+        return f"Avis {self.note}/5 de {self.user} sur {self.product.nom}"
+
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('commande', 'Commande'),
+        ('promo', 'Promotion'),
+        ('info', 'Information'),
+    ]
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications', verbose_name="Utilisateur")
+    titre = models.CharField(max_length=255, verbose_name="Titre")
+    message = models.TextField(verbose_name="Message")
+    type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='info', verbose_name="Type")
+    est_lu = models.BooleanField(default=False, verbose_name="Lu")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date de création")
+
+    class Meta:
+        verbose_name = "Notification"
+        verbose_name_plural = "Notifications"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"[{'Lu' if self.est_lu else 'Non lu'}] {self.titre} - {self.user}"
+
+
+class Favori(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favoris', verbose_name="Utilisateur")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='favoris', verbose_name="Produit")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date d'ajout")
+
+    class Meta:
+        db_table = 'favoris'
+        verbose_name = "Favori"
+        verbose_name_plural = "Favoris"
+        unique_together = ('user', 'product')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user} - {self.product.nom_complet}"

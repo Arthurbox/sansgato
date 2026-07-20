@@ -1,6 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/material.dart';
+import '../config/api_config.dart';
+import '../utils/global_navigator.dart';
+import '../screens/login_screen.dart';
 
 class AuthService {
   // Émulateur Android  → 'http://10.0.2.2:8000'
@@ -55,6 +60,18 @@ class AuthService {
     await prefs.remove('user');
   }
 
+  static Future<void> logoutAndRedirect() async {
+    await logout();
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    }
+  }
+
   // Inscription
   Future<Map<String, dynamic>> register({
     required String fullName,
@@ -75,7 +92,7 @@ class AuthService {
       if (email != null && email.isNotEmpty) body['email'] = email;
 
       final response = await http.post(
-        Uri.parse('$baseUrl/api/accounts/register/'),
+        Uri.parse('$baseUrl${ApiConfig.register}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
       );
@@ -113,7 +130,7 @@ class AuthService {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/accounts/login/'),
+        Uri.parse('$baseUrl${ApiConfig.login}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'identifier': identifier, 'password': password}),
       );

@@ -2,14 +2,16 @@ class Category {
   final int id;
   final String nom;
   final String? code;
+  final String layoutType;
 
-  Category({required this.id, required this.nom, this.code});
+  Category({required this.id, required this.nom, this.code, this.layoutType = 'portrait'});
 
   factory Category.fromJson(Map<String, dynamic> json) {
     return Category(
       id: json['id'],
       nom: json['nom'],
       code: json['code'],
+      layoutType: json['layout_type'] ?? 'portrait',
     );
   }
 }
@@ -50,6 +52,7 @@ class ProductVariant {
   final String? resolution;
   final String? technologie;
   final List<ProductImage> images;
+  String? productName;
 
   ProductVariant({
     required this.id,
@@ -73,6 +76,7 @@ class ProductVariant {
     this.resolution,
     this.technologie,
     this.images = const [],
+    this.productName,
   });
 
   factory ProductVariant.fromJson(Map<String, dynamic> json) {
@@ -123,6 +127,8 @@ class Product {
   final Category? categorie;
   final List<ProductImage> images;
   final List<ProductVariant> variantes;
+  final double noteMoyenne;
+  final int avisCount;
 
   Product({
     required this.id,
@@ -135,6 +141,8 @@ class Product {
     this.categorie,
     required this.images,
     required this.variantes,
+    this.noteMoyenne = 0.0,
+    this.avisCount = 0,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -153,6 +161,34 @@ class Product {
       variantes: json['variantes'] != null
           ? (json['variantes'] as List).map((v) => ProductVariant.fromJson(v)).toList()
           : [],
+      noteMoyenne: (json['note_moyenne'] ?? 0.0).toDouble(),
+      avisCount: json['avis_count'] ?? 0,
+    );
+  }
+}
+
+class AvisClient {
+  final int id;
+  final String userName;
+  final int note;
+  final String commentaire;
+  final String createdAt;
+
+  AvisClient({
+    required this.id,
+    required this.userName,
+    required this.note,
+    required this.commentaire,
+    required this.createdAt,
+  });
+
+  factory AvisClient.fromJson(Map<String, dynamic> json) {
+    return AvisClient(
+      id: json['id'],
+      userName: json['user_name'] ?? 'Anonyme',
+      note: json['note'],
+      commentaire: json['commentaire'] ?? '',
+      createdAt: json['created_at'],
     );
   }
 }

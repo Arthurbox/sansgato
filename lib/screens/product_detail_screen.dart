@@ -20,6 +20,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   int _swipeState = 0; // 0: initial, 1: loading, 2: success
   int _currentImageIndex = 0;
   Product? _fullProduct; // Produit complet chargé depuis l'API (avec description)
+  
+  List<AvisClient> _reviews = [];
+  bool _isLoadingReviews = true;
 
   @override
   void initState() {
@@ -32,6 +35,21 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     }
     // Charger le détail complet depuis l'API pour avoir la description
     _loadFullProduct();
+    _loadReviews();
+  }
+  
+  Future<void> _loadReviews() async {
+    try {
+      final data = await ProductService.getProductReviews(widget.product.id);
+      if (mounted) {
+        setState(() {
+          _reviews = (data['avis'] as List).map((v) => AvisClient.fromJson(v)).toList();
+          _isLoadingReviews = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingReviews = false);
+    }
   }
 
   Future<void> _loadFullProduct() async {
@@ -650,13 +668,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      const Icon(Icons.star, color: Colors.orangeAccent, size: 14),
-                      const SizedBox(width: 4),
-                      Text('4.8 (94)', style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 12)),
-                    ],
+                  GestureDetector(
+                    onTap: _showReviewsSheet,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const Icon(Icons.star, color: Colors.orangeAccent, size: 14),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${_product.noteMoyenne > 0 ? _product.noteMoyenne.toStringAsFixed(1) : "N/A"} (${_product.avisCount})', 
+                          style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 12, decoration: TextDecoration.underline),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Center(
@@ -775,6 +799,183 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showReviewsSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          builder: (_, controller) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            final bgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+            final textColor = isDark ? Colors.white : const Color(0xFF1A1A1A);
+            final subColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
+
+            return Container(
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40, height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade400,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Avis clients (${_product.avisCount})', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor)),
+                      TextButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showAddReviewDialog();
+                        },
+                        icon: const Icon(Icons.edit, size: 16, color: Color(0xFF00A9C1)),
+                        label: const Text('Donner un avis', style: TextStyle(color: Color(0xFF00A9C1))),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: _isLoadingReviews 
+                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF00A9C1)))
+                      : _reviews.isEmpty
+                        ? Center(child: Text('Aucun avis pour l\'instant.', style: TextStyle(color: subColor)))
+                        : ListView.separated(
+                            controller: controller,
+                            itemCount: _reviews.length,
+                            separatorBuilder: (_, __) => Divider(color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+                            itemBuilder: (context, index) {
+                              final review = _reviews[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(review.userName, style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
+                                        Row(
+                                          children: List.generate(5, (i) => Icon(
+                                            i < review.note ? Icons.star : Icons.star_border,
+                                            size: 14,
+                                            color: Colors.orangeAccent,
+                                          )),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(review.commentaire, style: TextStyle(color: subColor, fontSize: 13, height: 1.4)),
+                                    const SizedBox(height: 4),
+                                    Text(review.createdAt.substring(0, 10), style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      }
+    );
+  }
+
+  void _showAddReviewDialog() {
+    int selectedNote = 5;
+    final commentController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Votre avis'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        icon: Icon(
+                          index < selectedNote ? Icons.star : Icons.star_border,
+                          color: Colors.orangeAccent,
+                          size: 32,
+                        ),
+                        onPressed: () => setDialogState(() => selectedNote = index + 1),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: commentController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: 'Qu\'avez-vous pensé de ce produit ?',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      contentPadding: const EdgeInsets.all(12),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Annuler', style: TextStyle(color: Colors.grey)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00A9C1)),
+                  onPressed: () async {
+                    if (commentController.text.trim().isEmpty) return;
+                    Navigator.pop(context);
+                    
+                    try {
+                      await ProductService.addProductReview(
+                        widget.product.id,
+                        selectedNote,
+                        commentController.text.trim(),
+                      );
+                      _loadFullProduct();
+                      _loadReviews();
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Merci pour votre avis !'),
+                        backgroundColor: Colors.green,
+                      ));
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(e.toString().contains('déjà donné') ? 'Vous avez déjà donné un avis.' : 'Erreur lors de l\'envoi.'),
+                        backgroundColor: Colors.redAccent,
+                      ));
+                    }
+                  },
+                  child: const Text('Envoyer', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
+      }
     );
   }
 }

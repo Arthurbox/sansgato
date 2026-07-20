@@ -6,12 +6,14 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .models import (
     Category, Product, Cart, CartItem, ProductVariant,
-    Order, OrderItem, AdresseLivraison, AdresseExpedition, Kit
+    Order, OrderItem, AdresseLivraison, AdresseExpedition, Kit,
+    Notification, Favori, AvisClient
 )
 from .serializers import (
     CategorySerializer, ProductMinimalSerializer, ProductDetailSerializer,
     CartSerializer, CartItemSerializer,
-    CheckoutSerializer, OrderSerializer, KitSerializer
+    CheckoutSerializer, OrderSerializer, KitSerializer, NotificationSerializer,
+    AvisClientSerializer
 )
 
 
@@ -303,4 +305,106 @@ class ActivePromotionsView(APIView):
         })
 
 
+class NotificationListView(APIView):
+    """
+    GET: Liste toutes les notifications de l'utilisateur avec le nombre non lues
+    """
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        notifications = Notification.objects.filter(user=request.user)
+        unread_count = notifications.filter(est_lu=False).count()
+        serializer = NotificationSerializer(notifications, many=True)
+        return Response({
+            'unread_count': unread_count,
+            'notifications': serializer.data
+        })
+
+
+class NotificationMarkReadView(APIView):
+    """
+    POST: Marque une notification spécifique comme lue
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            notification = Notification.objects.get(id=pk, user=request.user)
+            notification.est_lu = True
+            notification.save()
+            return Response({'status': 'ok'})
+        except Notification.DoesNotExist:
+            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class FavoriteListView(APIView):
+    """
+    GET: Liste les produits en favoris pour l'utilisateur connecté (avec détails complets)
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Retourne les IDs pour le provider (mode ids=true)
+        if request.query_params.get('ids') == 'true':
+            ids = Favori.objects.filter(user=request.user).values_list('product_id', flat=True)
+            return Response(list(ids))
+        # Retourne les produits complets pour la page Favoris
+        favoris = Favori.objects.filter(user=request.user).select_related('product')
+        products = [f.product for f in favoris]
+        serializer = ProductMinimalSerializer(products, many=True, context={'request': request})
+        return Response(serializer.data)
+
+class FavoriteToggleView(APIView):
+    """
+    POST: Ajoute ou retire un produit des favoris
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            product = Product.objects.get(id=pk)
+            favori, created = Favori.objects.get_or_create(user=request.user, product=product)
+            if not created:
+                favori.delete()
+                return Response({'status': 'removed', 'product_id': pk})
+            return Response({'status': 'added', 'product_id': pk})
+        except Product.DoesNotExist:
+            return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+class AvisListCreateView(APIView):
+    """GET pour lister les avis d'un produit, POST pour en ajouter un."""
+    
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
+    def get(self, request, pk):
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response({"detail": "Produit non trouvé."}, status=404)
+            
+        avis = product.avis.all().order_by('-created_at')
+        serializer = AvisClientSerializer(avis, many=True)
+        return Response({
+            "note_moyenne": product.note_moyenne,
+            "avis_count": product.avis_count,
+            "avis": serializer.data
+        })
+
+    def post(self, request, pk):
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response({"detail": "Produit non trouvé."}, status=404)
+            
+        if product.avis.filter(user=request.user).exists():
+            return Response({"detail": "Vous avez déjà donné un avis pour ce produit."}, status=400)
+            
+        serializer = AvisClientSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user, product=product)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)

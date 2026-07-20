@@ -2,9 +2,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/cart_provider.dart';
+import '../providers/favorite_provider.dart';
 import 'home_screen.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
+import 'favorites_screen.dart';
+import 'search_screen.dart';
 
 class MainScaffold extends ConsumerStatefulWidget {
   const MainScaffold({super.key});
@@ -16,9 +19,9 @@ class MainScaffold extends ConsumerStatefulWidget {
 class _MainScaffoldState extends ConsumerState<MainScaffold> {
   final List<Widget> _screens = [
     const HomeScreen(),
-    const Center(child: Text('Recherche')),
+    const SearchScreen(),
     const CartScreen(),
-    const Center(child: Text('Favoris')),
+    const FavoritesScreen(),
     const ProfileScreen(),
   ];
 
@@ -39,7 +42,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
           Positioned(
             left: 24,
             right: 24,
-            bottom: 24,
+            bottom: 12,
             child: Container(
               height: 70,
               decoration: BoxDecoration(
@@ -70,7 +73,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                         _buildNavItem(0, Icons.home_filled, Icons.home_outlined, 'Accueil', primaryColor, isDark, _currentIndex),
                         _buildNavItem(1, Icons.search, Icons.search, 'Recherche', primaryColor, isDark, _currentIndex),
                         _buildNavItem(2, Icons.shopping_cart, Icons.shopping_cart_outlined, 'Panier', primaryColor, isDark, _currentIndex, badge: ref.watch(cartBadgeProvider)),
-                        _buildNavItem(3, Icons.favorite, Icons.favorite_border, 'Favoris', primaryColor, isDark, _currentIndex),
+                        _buildNavItem(3, Icons.favorite, Icons.favorite_border, 'Favoris', primaryColor, isDark, _currentIndex, badge: ref.watch(favoriteProvider).length),
                         _buildNavItem(4, Icons.person, Icons.person_outline, 'Profil', primaryColor, isDark, _currentIndex),
                       ],
                     ),

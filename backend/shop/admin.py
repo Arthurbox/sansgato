@@ -3,7 +3,7 @@ from django.utils.safestring import mark_safe
 from .models import (
     Category, Color, Brand, Product, VariantImage, ProductVariant, Kit, KitItem,
     Cart, CartItem, Order, OrderItem, AdresseLivraison, AdresseExpedition, LivraisonOrder,
-    Promotion
+    Promotion, AvisClient, Notification, Favori
 )
 
 
@@ -48,7 +48,7 @@ class BrandAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('nom_complet', 'categorie', 'marque', 'modele', 'etat', 'created_at')
+    list_display = ('nom_complet', 'categorie', 'marque', 'modele', 'etat', 'note_etat_occasion', 'created_at')
     list_filter = ('categorie', 'etat', 'marque', 'created_at')
     search_fields = ('nom_complet', 'marque', 'modele', 'description')
     inlines = [ProductVariantInline]
@@ -188,3 +188,24 @@ class PromotionAdmin(admin.ModelAdmin):
     search_fields = ('valeur',)
     readonly_fields = ('created_at', 'updated_at')
 
+
+@admin.register(AvisClient)
+class AvisClientAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'product', 'note', 'created_at')
+    list_filter = ('note', 'created_at')
+    search_fields = ('user__username', 'product__nom', 'commentaire')
+    readonly_fields = ('created_at',)
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'titre', 'type', 'est_lu', 'created_at')
+    list_filter = ('type', 'est_lu', 'created_at')
+    search_fields = ('titre', 'message', 'user__username')
+    readonly_fields = ('created_at',)
+
+@admin.register(Favori)
+class FavoriAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'product', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('user__username', 'product__nom')
+    readonly_fields = ('created_at',)

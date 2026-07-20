@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../providers/cart_provider.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
@@ -15,6 +17,49 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   bool _isLivraison = true; // true = Livraison, false = Expédition
   String _selectedPayment = 'wave'; // 'orange', 'moov', 'wave'
   bool _isLoading = false;
+
+  static const String kGoogleApiKey = 'AIzaSyApG8kZQwUunR2tFCX1o019tfJoS8li2m4';
+
+  Future<List<Map<String, String>>> _getPlaces(String input) async {
+    if (input.isEmpty) return [];
+    final url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$kGoogleApiKey&components=country:bf';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK') {
+          return (data['predictions'] as List).map<Map<String, String>>((p) => {
+            'description': p['description'] as String,
+            'place_id': p['place_id'] as String,
+          }).toList();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching places: $e');
+    }
+    return [];
+  }
+
+  Future<void> _getPlaceDetails(String placeId, String description) async {
+    final url = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$kGoogleApiKey';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK') {
+          final location = data['result']['geometry']['location'];
+          setState(() {
+            _selectedQuartier = description;
+            _latitude = location['lat'];
+            _longitude = location['lng'];
+          });
+          _mapController?.animateCamera(CameraUpdate.newLatLngZoom(LatLng(_latitude!, _longitude!), 16));
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching place details: $e');
+    }
+  }
 
   // Controllers Livraison
   String? _selectedQuartier;
@@ -346,9 +391,23 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               ] else ...[
                 Text('Informations d\'expédition', style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
-                _buildTextField(context, _nomCompletController, 'Nom complet'),
+                _buildTextField(context, _nomCompletController, 'Nom complet', validator: (value) {
+                  if (value == null || value.trim().isEmpty) return 'Ce champ est requis';
+                  if (!RegExp(r'^[a-zA-ZÀ-ÿ\s-]{3,}$').hasMatch(value)) {
+                    return 'Veuillez entrer un nom valide';
+                  }
+                  if (!value.trim().contains(' ')) return 'Veuillez entrer votre nom et prénom';
+                  return null;
+                }),
                 const SizedBox(height: 12),
-                _buildTextField(context, _telephoneController, 'Numéro de téléphone', keyboardType: TextInputType.phone),
+                _buildTextField(context, _telephoneController, 'Numéro de téléphone', keyboardType: TextInputType.phone, validator: (value) {
+                  if (value == null || value.trim().isEmpty) return 'Ce champ est requis';
+                  // Validation pour numéro du Burkina (8 chiffres, ou préfixé)
+                  if (!RegExp(r'^(\+226|00226)?([0-9]{8})$').hasMatch(value.replaceAll(' ', ''))) {
+                    return 'Numéro invalide (ex: 70 12 34 56)';
+                  }
+                  return null;
+                }),
                 const SizedBox(height: 12),
                 _buildTextField(context, _villeController, 'Ville de destination'),
                 const SizedBox(height: 12),
@@ -432,7 +491,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     );
   }
 
-  Widget _buildTextField(BuildContext context, TextEditingController controller, String hint, {bool required = true, TextInputType keyboardType = TextInputType.text}) {
+  Widget _buildTextField(BuildContext context, TextEditingController controller, String hint, {bool required = true, TextInputType keyboardType = TextInputType.text, String? Function(String?)? validator}) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color fieldBg = isDark ? const Color(0xFF1C1F2A) : Colors.white;
     final Color textColor = isDark ? Colors.white : Colors.black87;
@@ -440,7 +499,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       controller: controller,
       keyboardType: keyboardType,
       style: TextStyle(color: textColor),
-      validator: required ? (value) => value == null || value.isEmpty ? 'Champ requis' : null : null,
+      validator: validator ?? (required ? (value) => value == null || value.isEmpty ? 'Champ requis' : null : null),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.grey),
