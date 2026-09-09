@@ -27,7 +27,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final _currentIndex = ref.watch(selectedTabProvider);
+    final currentIndex = ref.watch(selectedTabProvider);
     const Color primaryColor = Color(0xFF00A9C1);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
@@ -36,7 +36,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
       body: Stack(
         children: [
           IndexedStack(
-            index: _currentIndex,
+            index: currentIndex,
             children: _screens,
           ),
           Positioned(
@@ -49,7 +49,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                 borderRadius: BorderRadius.circular(35),
                 boxShadow: [
                   BoxShadow(
-                    color: isDark ? Colors.black.withOpacity(0.3) : primaryColor.withOpacity(0.15),
+                    color: isDark ? Colors.black.withValues(alpha: 0.3) : primaryColor.withValues(alpha: 0.15),
                     blurRadius: 30,
                     offset: const Offset(0, 10),
                   ),
@@ -61,20 +61,20 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                   filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.black.withOpacity(0.65) : Colors.white.withOpacity(0.9),
+                      color: isDark ? Colors.black.withValues(alpha: 0.65) : Colors.white.withValues(alpha: 0.9),
                       border: Border.all(
-                        color: isDark ? Colors.white.withOpacity(0.15) : Colors.white.withOpacity(0.5),
+                        color: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.5),
                         width: 1.5,
                       ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _buildNavItem(0, Icons.home_filled, Icons.home_outlined, 'Accueil', primaryColor, isDark, _currentIndex),
-                        _buildNavItem(1, Icons.search, Icons.search, 'Recherche', primaryColor, isDark, _currentIndex),
-                        _buildNavItem(2, Icons.shopping_cart, Icons.shopping_cart_outlined, 'Panier', primaryColor, isDark, _currentIndex, badge: ref.watch(cartBadgeProvider)),
-                        _buildNavItem(3, Icons.favorite, Icons.favorite_border, 'Favoris', primaryColor, isDark, _currentIndex, badge: ref.watch(favoriteProvider).length),
-                        _buildNavItem(4, Icons.person, Icons.person_outline, 'Profil', primaryColor, isDark, _currentIndex),
+                        _buildNavItem(0, Icons.home_filled, Icons.home_outlined, 'Accueil', primaryColor, isDark, currentIndex),
+                        _buildNavItem(1, Icons.search, Icons.search, 'Recherche', primaryColor, isDark, currentIndex),
+                        _buildNavItem(2, Icons.shopping_cart, Icons.shopping_cart_outlined, 'Panier', primaryColor, isDark, currentIndex, badge: ref.watch(cartBadgeProvider)),
+                        _buildNavItem(3, Icons.favorite, Icons.favorite_border, 'Favoris', primaryColor, isDark, currentIndex, badge: ref.watch(favoriteProvider).length),
+                        _buildNavItem(4, Icons.person, Icons.person_outline, 'Profil', primaryColor, isDark, currentIndex),
                       ],
                     ),
                   ),

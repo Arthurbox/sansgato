@@ -5,6 +5,7 @@ import '../providers/cart_provider.dart';
 import '../services/auth_service.dart';
 import '../widgets/cart_skeleton_loader.dart';
 import 'checkout_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
@@ -98,9 +99,9 @@ class CartScreen extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.12),
+                  color: Colors.red.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                 ),
                 child: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
               ),
@@ -127,7 +128,7 @@ class CartScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.05)),
+        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.05)),
       ),
       child: Row(
         children: [
@@ -135,15 +136,12 @@ class CartScreen extends ConsumerWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: imageUrl != null && imageUrl.isNotEmpty
-                ? Image.network(
-                    imageUrl.startsWith('http')
+                ? CachedNetworkImage(imageUrl: imageUrl.startsWith('http')
                         ? imageUrl
-                        : '${AuthService.baseUrl}$imageUrl',
-                    width: 72,
+                        : '${AuthService.baseUrl}$imageUrl', width: 72,
                     height: 72,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imagePlaceholder(),
-                  )
+                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()), errorWidget: (context, url, error) => const Icon(Icons.error))
                 : _imagePlaceholder(),
           ),
           const SizedBox(width: 12),
@@ -185,7 +183,7 @@ class CartScreen extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withOpacity(0.07) : Colors.black.withOpacity(0.05),
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.07) : Colors.black.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -261,9 +259,9 @@ class CartScreen extends ConsumerWidget {
         width: 30,
         height: 30,
         decoration: BoxDecoration(
-          color: filled ? primary : Colors.white.withOpacity(0.08),
+          color: filled ? primary : Colors.white.withValues(alpha: 0.08),
           shape: BoxShape.circle,
-          border: filled ? null : Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withOpacity(0.12) : Colors.black.withOpacity(0.1)),
+          border: filled ? null : Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.1)),
         ),
         child: Icon(
           icon,
@@ -284,7 +282,7 @@ class CartScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.05)),
+        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,7 +300,7 @@ class CartScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           _summaryRow(context, 'Frais', 'À l\'étape suivante', textGrey),
           const SizedBox(height: 12),
-          Divider(color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.05), height: 1),
+          Divider(color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.05), height: 1),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -344,7 +342,7 @@ class CartScreen extends ConsumerWidget {
         color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF111318) : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).brightness == Brightness.dark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.05),
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.black.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.05),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),
@@ -359,7 +357,7 @@ class CartScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00A9C1).withOpacity(0.35),
+                color: const Color(0xFF00A9C1).withValues(alpha: 0.35),
                 blurRadius: 20,
                 offset: const Offset(0, 6),
               ),
@@ -399,7 +397,7 @@ class CartScreen extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.shopping_cart_outlined, size: 80, color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withOpacity(0.15) : Colors.black.withOpacity(0.1)),
+          Icon(Icons.shopping_cart_outlined, size: 80, color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.1)),
           const SizedBox(height: 20),
           Text(
             'Votre panier est vide',

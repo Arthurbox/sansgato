@@ -70,11 +70,11 @@ class _AdminPromotionCreateScreenState extends State<AdminPromotionCreateScreen>
           if (_selectedTargetType == 'productvariant') {
             try {
               _selectedVariant = _allVariants.firstWhere((v) => v.id == targetId);
-            } catch (e) {}
+            } catch (e) { debugPrint(e.toString()); }
           } else if (_selectedTargetType == 'kit') {
             try {
               _selectedKit = _kits.firstWhere((k) => k.id == targetId);
-            } catch (e) {}
+            } catch (e) { debugPrint(e.toString()); }
           }
         }
       });
@@ -120,10 +120,7 @@ class _AdminPromotionCreateScreenState extends State<AdminPromotionCreateScreen>
     setState(() => _isLoading = true);
 
     try {
-      final promoData = {
-        'content_type': _selectedTargetType == 'productvariant' ? 12 : 14, // NOTE: Ces IDs doivent correspondre aux IDs des ContentTypes du backend. En general, mieux vaut utiliser des champs dédiés ou un endpoint backend qui gère cela. Mais on va utiliser les ids par défaut Django si possible, sinon le backend doit accepter des chaînes, mais on a configuré le backend pour `content_type` qui attend un ID de table Django ContentType.
-        // Wait, on the backend we added `AdminPromotionSerializer` which might expect an integer for `content_type`.
-      };
+      
       // Correction: L'API attend l'ID du content_type. Pour éviter les erreurs d'ID de table, on va envoyer un payload adapté au backend.
       // Modifions le payload
       final payload = {

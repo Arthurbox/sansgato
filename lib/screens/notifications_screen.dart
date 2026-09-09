@@ -5,7 +5,7 @@ import '../providers/notification_provider.dart';
 import '../models/notification.dart';
 
 class NotificationsScreen extends ConsumerWidget {
-  const NotificationsScreen({Key? key}) : super(key: key);
+  const NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -96,13 +96,13 @@ class NotificationsScreen extends ConsumerWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: notif.estLu ? cardColor.withOpacity(0.6) : cardColor,
+          color: notif.estLu ? cardColor.withValues(alpha: 0.6) : cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: notif.estLu ? null : Border.all(color: const Color(0xFF00A9C1).withOpacity(0.3), width: 1.5),
+          border: notif.estLu ? null : Border.all(color: const Color(0xFF00A9C1).withValues(alpha: 0.3), width: 1.5),
           boxShadow: [
             if (!isDark && !notif.estLu)
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -115,7 +115,7 @@ class NotificationsScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: notif.estLu ? Colors.grey.withOpacity(0.1) : iconColor.withOpacity(0.15),
+                color: notif.estLu ? Colors.grey.withValues(alpha: 0.1) : iconColor.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Icon(iconData, color: notif.estLu ? Colors.grey : iconColor, size: 24),

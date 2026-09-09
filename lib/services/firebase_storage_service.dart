@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:path/path.dart' as path;
+
 
 class FirebaseStorageService {
   static final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -9,7 +9,7 @@ class FirebaseStorageService {
   /// Uploade une image vers Firebase Storage et retourne l'URL publique
   static Future<String> uploadImage(XFile imageFile, String folderPath) async {
     try {
-      final String fileName = '${DateTime.now().millisecondsSinceEpoch}_${path.basename(imageFile.path)}';
+      final String fileName = '${DateTime.now().millisecondsSinceEpoch}_${imageFile.name}';
       final String destination = '$folderPath/$fileName';
       
       final Reference ref = _storage.ref().child(destination);

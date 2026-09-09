@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/favorite_service.dart';
 
@@ -13,7 +14,7 @@ class FavoriteNotifier extends Notifier<Set<int>> {
       final favorites = await FavoriteService.fetchFavorites();
       state = favorites.toSet();
     } catch (e) {
-      print('Erreur fetchFavorites: $e');
+      debugPrint('Erreur fetchFavorites: $e');
     }
   }
 
@@ -37,7 +38,7 @@ class FavoriteNotifier extends Notifier<Set<int>> {
       } else {
         state = {...state}..remove(productId);
       }
-      print('Erreur toggleFavorite: $e');
+      debugPrint('Erreur toggleFavorite: $e');
       return e.toString();
     }
   }

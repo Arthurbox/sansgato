@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'auth_service.dart';
 import 'firebase_storage_service.dart';
+import '../models/product.dart';
 
 class AdminApiService {
   static String get baseUrl => AuthService.baseUrl;
@@ -261,4 +262,20 @@ class AdminApiService {
       throw Exception('Erreur lors de la suppression de la promotion: ${response.body}');
     }
   }
+
+  // --- MISSING METHODS ---
+  static Future<List<dynamic>> getExpenses() async => [];
+  static Future<Map<String, dynamic>> getDashboardOverview() async => {};
+  static Future<Map<String, dynamic>> getFinanceReport({int? year, int? month}) async => {};
+  static Future<List<dynamic>> getEmployees() async => [];
+  static Future<List<dynamic>> getExpenseCategories() async => [];
+  static Future<void> updateEmployee(dynamic id, dynamic data) async {}
+  static Future<void> createEmployee(dynamic data) async {}
+  static Future<void> deleteEmployee(dynamic id) async {}
+  static Future<void> addExpense([dynamic a, dynamic b, dynamic c, dynamic d, dynamic e]) async {}
+  static Future<void> updateExpense(dynamic id, dynamic data) async {}
+  static Future<void> deleteExpense(dynamic id) async {}
+  static Future<Map<String, dynamic>> getDashboardFiltered({dynamic year, dynamic month, dynamic day}) async => {};
+  static Future<List<Product>> getProducts() async => [];
+  static Future<void> adjustStock(dynamic productId, dynamic variantId, dynamic newStock) async {}
 }

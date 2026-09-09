@@ -1,0 +1,51 @@
+# Création Complète d'un Produit : Choix du Flux de Travail (Workflow)
+
+Ta réflexion est très pertinente. Tu mets le doigt sur une vraie question d'architecture métier : **faut-il séparer l'aspect "Logistique/Stock" de l'aspect "Marketing/Vente" ?**
+
+En toute objectivité, voici les deux approches possibles et ce que je te recommande selon la taille de ton équipe.
+
+---
+
+## Option 1 : Le flux ERP en 2 étapes (Ce que tu as suggéré)
+C'est la méthode des grandes entreprises (Amazon, Fnac).
+
+*   **Étape 1 (Gestion de Stock) :** Le magasinier reçoit les cartons. Il crée le "squelette" du produit (Marque, Modèle, Variantes, Quantité reçue, Prix d'achat fournisseur). Le produit est enregistré mais **incomplet et invisible pour les clients**.
+*   **Étape 2 (Catalogue / Vente) :** Le responsable marketing va dans le Catalogue. Il voit les nouveaux produits arrivés en stock. Il y ajoute les belles images, rédige la description commerciale, fixe le Prix de vente public, et le publie sur la page d'accueil.
+
+**Avantage :** Parfaite séparation des tâches si tu as des employés différents pour le stock et pour la vente.
+**Inconvénient :** C'est plus lourd à développer. Actuellement, ton modèle `Product` n'a pas de champ `est_publie` (brouillon). Il faudrait modifier la base de données Django.
+
+---
+
+## Option 2 : Le flux "Tout-en-un" (Ma Recommandation)
+C'est la méthode idéale pour les startups, les petites et moyennes boutiques (Shopify, WooCommerce).
+
+*   **Où ?** Dans la section **Catalogue** (pas dans la gestion de stock).
+*   **Comment ?** Un grand formulaire "Assistant" (Wizard) où tu fais tout d'un coup :
+    1. Infos de base (Catégorie, Marque, Modèle, Description).
+    2. Variantes & Stock & Prix (Tu ajoutes tes variantes, tu mets le prix d'achat, le prix de vente et la quantité initiale).
+    3. Images (Tu ajoutes directement les photos).
+*   **Résultat :** Dès que tu valides, le produit est en ligne et son stock est initialisé.
+*   **Et la "Gestion de stock" alors ?** Elle ne servira qu'à **réapprovisionner** (ajouter du stock quand tu reçois une nouvelle livraison d'un produit qui existe déjà) ou retirer du stock (pertes, casses).
+
+**Avantage :** Extrêmement rapide pour lancer de nouveaux produits. Moins de clics. Pas besoin de modifier la structure actuelle de ta base de données.
+
+---
+
+> [!IMPORTANT]
+> **Mon conseil en toute sincérité :**
+> Si tu gères la boutique seul ou avec une petite équipe, **choisis l'Option 2**. C'est le plus efficace et ça t'évitera d'avoir des produits "fantômes" coincés dans le stock sans prix de vente.
+> 
+> **Quelle option préfères-tu que l'on développe ? (1 ou 2)**
+
+## Ce qui sera développé selon ton choix :
+
+### Si Option 2 (Tout-en-un) :
+- Création d'un `AdminProductWizardScreen` accessible depuis l'onglet **Catalogue**.
+- Ce Wizard contiendra 3 ou 4 étapes fluides (Infos -> Variantes/Prix/Stock -> Images -> Validation).
+- La page "Gestion de Stock" actuelle restera dédiée aux alertes de ruptures et aux **ajustements de stock** (réassorts).
+
+### Si Option 1 (En deux étapes) :
+- Modification du backend (Django) pour ajouter un statut (Actif/Brouillon) au modèle `Product`.
+- Création d'une interface d'entrée de stock dans "Gestion de stock" (sans image ni prix de vente).
+- Modification de la page "Catalogue" pour lister les "Brouillons" et permettre d'ajouter les images et le prix de vente avant publication.

@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, unused_element
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/auth_service.dart';
@@ -7,10 +8,11 @@ import '../providers/cart_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../widgets/swipeable_add_to_cart_button.dart';
 import '../widgets/feed_skeleton_loader.dart';
-import 'login_screen.dart';
+
 import 'product_detail_screen.dart';
 import 'notifications_screen.dart';
 import '../providers/notification_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -111,7 +113,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: borderColor, width: 1.5),
                 boxShadow: _searchFocusNode.hasFocus
-                    ? [BoxShadow(color: const Color(0xFFFF3B30).withOpacity(0.12), blurRadius: 8, offset: const Offset(0, 2))]
+                    ? [BoxShadow(color: const Color(0xFFFF3B30).withValues(alpha: 0.12), blurRadius: 8, offset: const Offset(0, 2))]
                     : [],
               ),
               child: Row(
@@ -321,7 +323,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         boxShadow: [
           if (!isDark)
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -343,11 +345,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: imageUrl.isNotEmpty
-                        ? Image.network(
-                            imageUrl.startsWith('http') ? imageUrl : '${AuthService.baseUrl}$imageUrl',
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => _imagePlaceholder(isDark),
-                          )
+                        ? CachedNetworkImage(imageUrl: imageUrl.startsWith('http') ? imageUrl : '${AuthService.baseUrl}$imageUrl', fit: BoxFit.contain,
+                            placeholder: (context, url) => const Center(child: CircularProgressIndicator()), errorWidget: (context, url, error) => const Icon(Icons.error))
                         : _imagePlaceholder(isDark),
                   ),
                 ),
@@ -378,7 +377,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           decoration: BoxDecoration(
                             color: isFav ? Colors.red : cardColor,
                             shape: BoxShape.circle,
-                            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4)],
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4)],
                           ),
                           child: Icon(
                             isFav ? Icons.favorite : Icons.favorite_border, 
@@ -489,7 +488,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 : null,
                             boxShadow: [
                               BoxShadow(
-                                color: (isAdded ? const Color(0xFF00A9C1) : Colors.black).withOpacity(0.3),
+                                color: (isAdded ? const Color(0xFF00A9C1) : Colors.black).withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 3),
                               ),
@@ -539,7 +538,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         boxShadow: [
           if (!isDark)
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -561,11 +560,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: AspectRatio(
                     aspectRatio: 16 / 9,
                     child: imageUrl.isNotEmpty
-                        ? Image.network(
-                            imageUrl.startsWith('http') ? imageUrl : '${AuthService.baseUrl}$imageUrl',
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _imagePlaceholder(isDark),
-                          )
+                        ? CachedNetworkImage(imageUrl: imageUrl.startsWith('http') ? imageUrl : '${AuthService.baseUrl}$imageUrl', fit: BoxFit.cover,
+                            placeholder: (context, url) => const Center(child: CircularProgressIndicator()), errorWidget: (context, url, error) => const Icon(Icons.error))
                         : _imagePlaceholder(isDark),
                   ),
                 ),
@@ -597,7 +593,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           decoration: BoxDecoration(
                             color: isFav ? Colors.red : cardColor,
                             shape: BoxShape.circle,
-                            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4)],
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4)],
                           ),
                           child: Icon(
                             isFav ? Icons.favorite : Icons.favorite_border, 
@@ -750,7 +746,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(6),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4)],
       ),
       child: Text(
         isNew ? 'Neuf' : etat,
@@ -855,12 +851,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: isAdded ? const Color(0xFF00A9C1) : const Color(0xFFFF3B30).withOpacity(0.5), 
+            color: isAdded ? const Color(0xFF00A9C1) : const Color(0xFFFF3B30).withValues(alpha: 0.5), 
             width: 1.5
         ),
         boxShadow: [
           BoxShadow(
-            color: (isAdded ? const Color(0xFF00A9C1) : const Color(0xFFFF3B30)).withOpacity(0.15),
+            color: (isAdded ? const Color(0xFF00A9C1) : const Color(0xFFFF3B30)).withValues(alpha: 0.15),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -879,11 +875,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: imageUrl.isNotEmpty
-                        ? Image.network(
-                            imageUrl.startsWith('http') ? imageUrl : '${AuthService.baseUrl}$imageUrl',
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => _imagePlaceholder(isDark),
-                          )
+                        ? CachedNetworkImage(imageUrl: imageUrl.startsWith('http') ? imageUrl : '${AuthService.baseUrl}$imageUrl', fit: BoxFit.contain,
+                            placeholder: (context, url) => const Center(child: CircularProgressIndicator()), errorWidget: (context, url, error) => const Icon(Icons.error))
                         : _imagePlaceholder(isDark),
                   ),
                 ),
@@ -926,7 +919,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           decoration: BoxDecoration(
                             color: isFav ? Colors.red : cardColor,
                             shape: BoxShape.circle,
-                            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4)],
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4)],
                           ),
                           child: Icon(
                             isFav ? Icons.favorite : Icons.favorite_border, 
@@ -1010,7 +1003,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 : null,
                             boxShadow: [
                               BoxShadow(
-                                color: (isAdded ? const Color(0xFF00A9C1) : Colors.black).withOpacity(0.3),
+                                color: (isAdded ? const Color(0xFF00A9C1) : Colors.black).withValues(alpha: 0.3),
                                 blurRadius: 6,
                                 offset: const Offset(0, 3),
                               ),
@@ -1048,7 +1041,7 @@ class PromoBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFF3B30).withOpacity(0.3),
+            color: const Color(0xFFFF3B30).withValues(alpha: 0.3),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),

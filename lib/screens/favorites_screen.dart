@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, unused_element
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/product.dart';
@@ -6,6 +7,7 @@ import '../services/auth_service.dart';
 import '../providers/favorite_provider.dart';
 import '../providers/cart_provider.dart';
 import 'product_detail_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class FavoritesScreen extends ConsumerStatefulWidget {
   const FavoritesScreen({super.key});
@@ -90,7 +92,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.12),
+                        color: Colors.red.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -166,7 +168,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
           boxShadow: [
             if (!isDark)
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -183,11 +185,8 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: imageUrl.isNotEmpty
-                        ? Image.network(
-                            imageUrl.startsWith('http') ? imageUrl : '${AuthService.baseUrl}$imageUrl',
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => _imagePlaceholder(isDark),
-                          )
+                        ? CachedNetworkImage(imageUrl: imageUrl.startsWith('http') ? imageUrl : '${AuthService.baseUrl}$imageUrl', fit: BoxFit.contain,
+                            placeholder: (context, url) => const Center(child: CircularProgressIndicator()), errorWidget: (context, url, error) => const Icon(Icons.error))
                         : _imagePlaceholder(isDark),
                   ),
                 ),
@@ -209,7 +208,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                       decoration: BoxDecoration(
                         color: isFav ? Colors.red : cardColor,
                         shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)],
+                        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)],
                       ),
                       child: Icon(
                         isFav ? Icons.favorite : Icons.favorite_border,
@@ -301,7 +300,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                                     : null,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: (isAdded ? const Color(0xFF00A9C1) : Colors.black).withOpacity(0.25),
+                                    color: (isAdded ? const Color(0xFF00A9C1) : Colors.black).withValues(alpha: 0.25),
                                     blurRadius: 6,
                                     offset: const Offset(0, 3),
                                   ),
@@ -332,7 +331,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.favorite_border, size: 72, color: subColor.withOpacity(0.4)),
+          Icon(Icons.favorite_border, size: 72, color: subColor.withValues(alpha: 0.4)),
           const SizedBox(height: 16),
           Text(
             'Aucun favori pour l\'instant',
@@ -342,7 +341,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
           Text(
             'Appuyez sur le cœur d\'un produit\npour le sauvegarder ici.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: subColor.withOpacity(0.7)),
+            style: TextStyle(fontSize: 13, color: subColor.withValues(alpha: 0.7)),
           ),
         ],
       ),

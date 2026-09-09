@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, unused_element
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -336,7 +337,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF2C303A).withOpacity(0.9),
+                                  color: const Color(0xFF2C303A).withValues(alpha: 0.9),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: const Text(
@@ -464,7 +465,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               color: primary,
               boxShadow: [
                 BoxShadow(
-                  color: primary.withOpacity(0.4),
+                  color: primary.withValues(alpha: 0.4),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),

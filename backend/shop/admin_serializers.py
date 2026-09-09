@@ -1,13 +1,20 @@
 from rest_framework import serializers
 from .models import (
     Product, VariantImage, ProductVariant, Category, Color, Brand,
-    Kit, KitItem, Promotion
+    Kit, KitItem, Promotion, StockMovement, ExpenseCategory, Expense, Employee
 )
 
 class AdminProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'nom_complet', 'slug', 'marque', 'modele', 'description', 'caracteristiques', 'etat', 'categorie']
+        fields = ['id', 'nom_complet', 'slug', 'marque', 'modele', 'description', 'caracteristiques', 'etat', 'categorie', 'statut_publication']
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['categorie'] = AdminCategorySerializer(instance.categorie).data if instance.categorie else None
+        ret['marque'] = AdminBrandSerializer(instance.marque).data if instance.marque else None
+        ret['variantes'] = AdminProductVariantSerializer(instance.variantes.all(), many=True).data
+        return ret
 
 class AdminVariantImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,7 +26,12 @@ class AdminProductVariantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductVariant
-        fields = ['id', 'produit', 'couleur', 'ram', 'stockage', 'taille_ecran', 'resolution', 'technologie', 'taux_rafraichissement', 'prix', 'stock', 'sku']
+        fields = ['id', 'produit', 'couleur', 'ram', 'stockage', 'taille_ecran', 'resolution', 'technologie', 'taux_rafraichissement', 'prix_achat', 'prix', 'stock', 'sku']
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['couleur'] = AdminColorSerializer(instance.couleur).data if instance.couleur else None
+        return ret
 
 class AdminCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -81,3 +93,27 @@ class AdminPromotionSerializer(serializers.ModelSerializer):
             ret['content_type_model'] = instance.content_type.model
         return ret
 
+class AdminStockMovementSerializer(serializers.ModelSerializer):
+    variante_nom = serializers.CharField(source='variante.__str__', read_only=True)
+
+    class Meta:
+        model = StockMovement
+        fields = ['id', 'variante', 'variante_nom', 'quantite', 'type_mouvement', 'motif', 'date']
+
+class AdminExpenseCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExpenseCategory
+        fields = '__all__'
+
+class AdminExpenseSerializer(serializers.ModelSerializer):
+    categorie_nom = serializers.CharField(source='categorie.nom', read_only=True)
+
+    class Meta:
+        model = Expense
+        fields = ['id', 'categorie', 'categorie_nom', 'montant', 'date', 'description', 'created_at']
+
+
+class AdminEmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = ['id', 'nom', 'poste', 'salaire_mensuel', 'date_embauche', 'est_actif', 'created_at', 'updated_at']

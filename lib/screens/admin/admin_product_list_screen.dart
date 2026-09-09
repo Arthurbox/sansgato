@@ -11,6 +11,7 @@ import 'admin_product_variant_screen.dart';
 import 'admin_product_edit_screen.dart';
 import 'admin_kit_create_screen.dart';
 import 'admin_promotion_list_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AdminProductListScreen extends ConsumerStatefulWidget {
   const AdminProductListScreen({super.key});
@@ -216,15 +217,12 @@ class _CategoryProductListState extends ConsumerState<_CategoryProductList> {
                     if (imageUrl != null) {
                       return ClipRRect(
                         borderRadius: BorderRadius.circular(6),
-                        child: Image.network(
-                          imageUrl.startsWith('http')
+                        child: CachedNetworkImage(imageUrl: imageUrl.startsWith('http')
                               ? imageUrl
-                              : '${AuthService.baseUrl}$imageUrl',
-                          width: 50,
+                              : '${AuthService.baseUrl}$imageUrl', width: 50,
                           height: 50,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported),
-                        ),
+                          placeholder: (context, url) => const Center(child: CircularProgressIndicator()), errorWidget: (context, url, error) => const Icon(Icons.error)),
                       );
                     }
                     return const Icon(Icons.smartphone, size: 50);
@@ -359,15 +357,12 @@ class _KitListState extends ConsumerState<_KitList> {
                 leading: kit.image != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(6),
-                        child: Image.network(
-                          kit.image!.startsWith('http')
+                        child: CachedNetworkImage(imageUrl: kit.image!.startsWith('http')
                               ? kit.image!
-                              : '${AuthService.baseUrl}${kit.image!}',
-                          width: 50,
+                              : '${AuthService.baseUrl}${kit.image!}', width: 50,
                           height: 50,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported),
-                        ),
+                          placeholder: (context, url) => const Center(child: CircularProgressIndicator()), errorWidget: (context, url, error) => const Icon(Icons.error)),
                       )
                     : const Icon(Icons.inventory_2, size: 50),
                 title: Text(kit.nom, style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'package:flutter/material.dart';
 import '../config/api_config.dart';
 import '../utils/global_navigator.dart';
@@ -64,6 +64,7 @@ class AuthService {
     await logout();
     final context = navigatorKey.currentContext;
     if (context != null) {
+      if (!context.mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const LoginScreen()),

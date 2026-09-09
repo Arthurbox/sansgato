@@ -51,6 +51,7 @@ class ProductVariant {
   final String? tailleEcran;
   final String? resolution;
   final String? technologie;
+  final dynamic prixAchat;
   final List<ProductImage> images;
   String? productName;
 
@@ -75,6 +76,7 @@ class ProductVariant {
     this.tailleEcran,
     this.resolution,
     this.technologie,
+    this.prixAchat = 0.0,
     this.images = const [],
     this.productName,
   });
@@ -109,6 +111,7 @@ class ProductVariant {
       tailleEcran: json['taille_ecran']?.toString(),
       resolution: json['resolution']?.toString(),
       technologie: json['technologie']?.toString(),
+      prixAchat: json['prix_achat'],
       images: json['images'] != null
           ? (json['images'] as List).map((i) => ProductImage.fromJson(i)).toList()
           : [],
@@ -125,6 +128,7 @@ class Product {
   final int? marqueId;
   final String etat;
   final Category? categorie;
+  final String statutPublication;
   final List<ProductImage> images;
   final List<ProductVariant> variantes;
   final double noteMoyenne;
@@ -139,6 +143,7 @@ class Product {
     this.marqueId,
     required this.etat,
     this.categorie,
+    this.statutPublication = 'publie',
     required this.images,
     required this.variantes,
     this.noteMoyenne = 0.0,
@@ -155,6 +160,7 @@ class Product {
       marqueId: (json['marque'] is Map) ? json['marque']['id'] : null,
       etat: json['etat'] ?? '',
       categorie: json['categorie'] != null ? Category.fromJson(json['categorie']) : null,
+      statutPublication: json['statut_publication'] ?? 'publie',
       images: json['images'] != null
           ? (json['images'] as List).map((i) => ProductImage.fromJson(i)).toList()
           : [],

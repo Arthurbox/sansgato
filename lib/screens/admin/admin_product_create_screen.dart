@@ -493,8 +493,7 @@ class _AdminProductCreateScreenState extends State<AdminProductCreateScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = const Color(0xFF00A9C1);
-
+    
     final showRamStorage = _showsRamAndStorage();
     final isComputer = _isComputer();
     final isAccessory = _isAccessory();

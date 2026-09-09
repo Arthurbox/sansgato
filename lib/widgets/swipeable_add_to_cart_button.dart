@@ -83,8 +83,11 @@ class _SwipeableAddToCartButtonState extends State<SwipeableAddToCartButton> {
             ? const Color(0xFF00A9C1) 
             : (widget.isDark ? Colors.grey.shade800 : Colors.grey.shade100);
 
-        return Align(
-          alignment: Alignment.centerRight,
+        return Semantics(
+          button: true,
+          label: 'Ajouter au panier',
+          child: Align(
+            alignment: Alignment.centerRight,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
@@ -106,7 +109,7 @@ class _SwipeableAddToCartButtonState extends State<SwipeableAddToCartButton> {
                         width: _swipePosition + 44,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00A9C1).withOpacity(0.2),
+                            color: const Color(0xFF00A9C1).withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(22),
                           ),
                         ),
@@ -144,7 +147,7 @@ class _SwipeableAddToCartButtonState extends State<SwipeableAddToCartButton> {
                                   : (widget.isDark ? const Color(0xFFE0E0E0) : const Color(0xFF1A1A1A)),
                               borderRadius: BorderRadius.circular(22),
                               boxShadow: [
-                                  BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(2, 0))
+                                  BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(2, 0))
                               ]
                             ),
                             child: Icon(
@@ -172,7 +175,7 @@ class _SwipeableAddToCartButtonState extends State<SwipeableAddToCartButton> {
                         : const Icon(Icons.check, color: Colors.white, size: 24),
                   ),
           ),
-        );
+        ));
       },
     );
   }

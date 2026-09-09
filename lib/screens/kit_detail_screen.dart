@@ -4,6 +4,7 @@ import '../../services/auth_service.dart';
 import '../../services/product_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/cart_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class KitDetailScreen extends ConsumerWidget {
   final Kit kit;
@@ -83,15 +84,11 @@ class KitDetailScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (kit.image != null)
-              Image.network(
-                kit.image!.startsWith('http')
+              CachedNetworkImage(imageUrl: kit.image!.startsWith('http')
                     ? kit.image!
-                    : '${AuthService.baseUrl}${kit.image}',
-                height: 250,
+                    : '${AuthService.baseUrl}${kit.image}', height: 250,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    Container(height: 250, color: Colors.grey[200]),
-              )
+                placeholder: (context, url) => const Center(child: CircularProgressIndicator()), errorWidget: (context, url, error) => const Icon(Icons.error))
             else
               Container(
                 height: 250,

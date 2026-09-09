@@ -141,6 +141,13 @@ class CheckoutView(APIView):
             if hasattr(item.item, 'stock'):
                 item.item.stock -= item.quantite
                 item.item.save()
+                from .models import StockMovement
+                StockMovement.objects.create(
+                    variante=item.item,
+                    quantite=-item.quantite,
+                    type_mouvement='sortie',
+                    motif=f'Vente (Commande #{order.id})'
+                )
 
         # Enregistrer l adresse selon le mode de reception
         if mode_reception == "livraison":
@@ -218,7 +225,7 @@ class ProductListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        queryset = Product.objects.all()
+        queryset = Product.objects.filter(statut_publication='publie')
 
         # Filtrage par catégorie
         category_id = request.query_params.get("category")

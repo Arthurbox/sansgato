@@ -4,6 +4,7 @@ import '../models/kit.dart';
 import '../services/product_service.dart';
 import '../services/auth_service.dart';
 import 'kit_detail_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class PromotionListScreen extends StatefulWidget {
   const PromotionListScreen({super.key});
@@ -92,7 +93,7 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: isDark ? Colors.grey.shade700 : Colors.transparent),
           boxShadow: [
-            if (!isDark) BoxShadow(color: Colors.grey.withOpacity(0.2), spreadRadius: 1, blurRadius: 4),
+            if (!isDark) BoxShadow(color: Colors.grey.withValues(alpha: 0.2), spreadRadius: 1, blurRadius: 4),
           ],
         ),
         child: Column(
@@ -104,12 +105,9 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
                   if (imageUrl.isNotEmpty)
                     ClipRRect(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                      child: Image.network(
-                        imageUrl.startsWith('http') ? imageUrl : '${AuthService.baseUrl}$imageUrl',
-                        width: double.infinity,
+                      child: CachedNetworkImage(imageUrl: imageUrl.startsWith('http') ? imageUrl : '${AuthService.baseUrl}$imageUrl', width: double.infinity,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(color: Colors.grey[200]),
-                      ),
+                        placeholder: (context, url) => const Center(child: CircularProgressIndicator()), errorWidget: (context, url, error) => const Icon(Icons.error)),
                     )
                   else
                     Container(
@@ -179,7 +177,7 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: isDark ? Colors.grey.shade700 : Colors.transparent),
           boxShadow: [
-            if (!isDark) BoxShadow(color: Colors.grey.withOpacity(0.2), spreadRadius: 1, blurRadius: 4),
+            if (!isDark) BoxShadow(color: Colors.grey.withValues(alpha: 0.2), spreadRadius: 1, blurRadius: 4),
           ],
         ),
         child: Column(
@@ -191,12 +189,9 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
                   ClipRRect(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                     child: kit.image != null
-                        ? Image.network(
-                            kit.image!.startsWith('http') ? kit.image! : '${AuthService.baseUrl}${kit.image}',
-                            width: double.infinity,
+                        ? CachedNetworkImage(imageUrl: kit.image!.startsWith('http') ? kit.image! : '${AuthService.baseUrl}${kit.image}', width: double.infinity,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(color: Colors.grey[200]),
-                          )
+                            placeholder: (context, url) => const Center(child: CircularProgressIndicator()), errorWidget: (context, url, error) => const Icon(Icons.error))
                         : Container(
                             width: double.infinity,
                             color: Colors.grey[300],

@@ -1,4 +1,6 @@
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, unused_element
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/product.dart';
 import '../services/auth_service.dart';
 import '../services/product_service.dart';
@@ -54,6 +56,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
   Future<void> _loadFullProduct() async {
     try {
+      debugPrint('Product detail for: ${widget.product.id}');
       final full = await ProductService.getProductDetail(widget.product.id);
       if (mounted) {
         setState(() {
@@ -68,7 +71,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         });
       }
     } catch (e) {
-      print("ERREUR _loadFullProduct: $e");
+      debugPrint("ERREUR _loadFullProduct: $e");
       // Garde le produit minimal si l'API échoue
     }
   }
@@ -395,9 +398,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                     itemBuilder: (context, index) {
                                       final img = activeImages[index].image;
                                       final imgUrl = img.startsWith('http') ? img : '${AuthService.baseUrl}$img';
-                                      return Image.network(
-                                        imgUrl,
+                                      return CachedNetworkImage(
+                                        imageUrl: imgUrl,
                                         fit: BoxFit.contain,
+                                        placeholder: (context, url) => const Center(
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        ),
+                                        errorWidget: (context, url, error) => const Icon(Icons.broken_image, color: Colors.grey),
                                       );
                                     },
                                   )

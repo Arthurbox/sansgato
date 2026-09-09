@@ -1,9 +1,8 @@
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, unused_element
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/auth_service.dart';
 import 'main_scaffold.dart';
-import 'login_screen.dart';
-import 'admin_main_screen.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;

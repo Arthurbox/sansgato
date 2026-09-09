@@ -216,3 +216,8 @@ TWILIO_VERIFY_SERVICE_SID = os.getenv('TWILIO_VERIFY_SERVICE_SID')
 
 # Paiement Webhook
 WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET', 'secret_de_test_local')
+
+# Media files configuration (Serving uploaded product images)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+

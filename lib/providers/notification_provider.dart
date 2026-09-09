@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/notification.dart';
@@ -89,7 +90,7 @@ class NotificationNotifier extends Notifier<NotificationState> {
         unreadCount: (state.unreadCount - 1).clamp(0, 999),
       );
     } catch (e) {
-      print('Erreur lors du marquage de la notification: $e');
+      debugPrint('Erreur lors du marquage de la notification: $e');
     }
   }
 }

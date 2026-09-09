@@ -10,7 +10,10 @@ from .views import (
 )
 from .admin_views import (
     AdminProductViewSet, AdminProductVariantViewSet, AdminCategoryViewSet,
-    AdminColorViewSet, AdminBrandViewSet, AdminKitViewSet, AdminPromotionViewSet
+    AdminColorViewSet, AdminBrandViewSet, AdminKitViewSet, AdminPromotionViewSet,
+    AdminInventoryViewSet, AdminDashboardViewSet,
+    AdminExpenseCategoryViewSet, AdminExpenseViewSet, AdminFinanceViewSet,
+    AdminEmployeeViewSet
 )
 
 router = DefaultRouter()
@@ -21,6 +24,12 @@ router.register(r'admin/colors', AdminColorViewSet, basename='admin-color')
 router.register(r'admin/brands', AdminBrandViewSet, basename='admin-brand')
 router.register(r'admin/kits', AdminKitViewSet, basename='admin-kit')
 router.register(r'admin/promotions', AdminPromotionViewSet, basename='admin-promotion')
+router.register(r'admin/inventory', AdminInventoryViewSet, basename='admin-inventory')
+router.register(r'admin/dashboard', AdminDashboardViewSet, basename='admin-dashboard')
+router.register(r'admin/expense-categories', AdminExpenseCategoryViewSet, basename='admin-expense-category')
+router.register(r'admin/expenses', AdminExpenseViewSet, basename='admin-expense')
+router.register(r'admin/employees', AdminEmployeeViewSet, basename='admin-employee')
+router.register(r'admin/finances', AdminFinanceViewSet, basename='admin-finance')
 
 
 urlpatterns = [

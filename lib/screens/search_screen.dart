@@ -7,6 +7,7 @@ import '../services/category_service.dart';
 import '../services/auth_service.dart';
 import 'product_detail_screen.dart';
 import '../providers/cart_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -130,7 +131,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   boxShadow: [
                     if (!isDark)
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -252,7 +253,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           boxShadow: [
             if (!isDark)
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -267,11 +268,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               child: AspectRatio(
                 aspectRatio: 1,
                 child: imageUrl.isNotEmpty
-                    ? Image.network(
-                        imageUrl.startsWith('http') ? imageUrl : '${AuthService.baseUrl}$imageUrl',
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => _imagePlaceholder(isDark),
-                      )
+                    ? CachedNetworkImage(imageUrl: imageUrl.startsWith('http') ? imageUrl : '${AuthService.baseUrl}$imageUrl', fit: BoxFit.contain,
+                        placeholder: (context, url) => const Center(child: CircularProgressIndicator()), errorWidget: (context, url, error) => const Icon(Icons.error))
                     : _imagePlaceholder(isDark),
               ),
             ),
@@ -354,7 +352,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                     : null,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: (isAdded ? const Color(0xFF00A9C1) : Colors.black).withOpacity(0.25),
+                                    color: (isAdded ? const Color(0xFF00A9C1) : Colors.black).withValues(alpha: 0.25),
                                     blurRadius: 6,
                                     offset: const Offset(0, 3),
                                   ),
@@ -385,7 +383,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search_off, size: 72, color: subColor.withOpacity(0.4)),
+          Icon(Icons.search_off, size: 72, color: subColor.withValues(alpha: 0.4)),
           const SizedBox(height: 16),
           Text(
             'Aucun résultat',
@@ -395,7 +393,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           Text(
             'Essayez d\'autres mots-clés ou catégories.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: subColor.withOpacity(0.7)),
+            style: TextStyle(fontSize: 13, color: subColor.withValues(alpha: 0.7)),
           ),
         ],
       ),
@@ -407,7 +405,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.manage_search, size: 72, color: subColor.withOpacity(0.4)),
+          Icon(Icons.manage_search, size: 72, color: subColor.withValues(alpha: 0.4)),
           const SizedBox(height: 16),
           Text(
             'Que recherchez-vous ?',
@@ -417,7 +415,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           Text(
             'Tapez votre recherche ci-dessus.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: subColor.withOpacity(0.7)),
+            style: TextStyle(fontSize: 13, color: subColor.withValues(alpha: 0.7)),
           ),
         ],
       ),

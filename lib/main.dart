@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_scaffold.dart';
@@ -12,6 +15,8 @@ import 'utils/global_navigator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Initialise les données de localisation pour DateFormat (fr_FR, etc.)
+  await initializeDateFormatting('fr_FR', null);
   await AuthService.init();
   ApiClient.initialize();
   
@@ -20,7 +25,7 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   } catch (e) {
-    print('Erreur d\'initialisation Firebase: $e');
+    debugPrint('Erreur d\'initialisation Firebase: $e');
   }
 
   runApp(
@@ -44,6 +49,16 @@ class MyApp extends ConsumerWidget {
       themeMode: themeMode,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('fr', ''),
+        Locale('en', ''),
+      ],
       home: AuthService.isAuthenticated ? const MainScaffold() : const LoginScreen(),
     );
   }

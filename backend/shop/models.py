@@ -95,6 +95,19 @@ class Product(models.Model):
         verbose_name="Note de l'état (sur 10)",
         help_text="Requis si l'état est 'Occasion'. Note de 1 à 10."
     )
+    
+    STATUT_PUBLICATION_CHOICES = [
+        ('brouillon', 'Brouillon'),
+        ('publie', 'Publié'),
+        ('archive', 'Archivé'),
+    ]
+    statut_publication = models.CharField(
+        max_length=20,
+        choices=STATUT_PUBLICATION_CHOICES,
+        default='brouillon',
+        verbose_name="Statut de publication"
+    )
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -255,6 +268,7 @@ class ProductVariant(models.Model):
         verbose_name="Taux de rafraîchissement"
     )
 
+    prix_achat = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Prix d'achat fournisseur (FCFA)", default=0)
     prix = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Prix (FCFA)")
     stock = models.PositiveIntegerField(default=0, verbose_name="Stock disponible")
     sku = models.CharField(max_length=100, unique=True, verbose_name="SKU (référence interne)")
@@ -264,7 +278,7 @@ class ProductVariant(models.Model):
     class Meta:
         verbose_name = "Variante produit"
         verbose_name_plural = "Variantes produit"
-        ordering = ['produit', 'couleur', 'ram', 'stockage']
+        ordering = ['created_at', 'produit', 'couleur', 'ram', 'stockage']
         # Contrainte d'unicité : une seule variante par combinaison
         unique_together = [['produit', 'couleur', 'ram', 'stockage']]
 
@@ -624,3 +638,71 @@ class Favori(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.product.nom_complet}"
+
+
+class StockMovement(models.Model):
+    TYPE_CHOICES = [
+        ('entree', 'Entrée'),
+        ('sortie', 'Sortie'),
+    ]
+
+    variante = models.ForeignKey('ProductVariant', on_delete=models.CASCADE, related_name='stock_movements', verbose_name="Variante")
+    quantite = models.IntegerField(verbose_name="Quantité")
+    type_mouvement = models.CharField(max_length=10, choices=TYPE_CHOICES, verbose_name="Type de mouvement")
+    motif = models.CharField(max_length=100, verbose_name="Motif")
+    date = models.DateTimeField(auto_now_add=True, verbose_name="Date")
+    
+    class Meta:
+        verbose_name = "Mouvement de stock"
+        verbose_name_plural = "Mouvements de stock"
+        ordering = ['-date']
+
+    def __str__(self):
+        signe = "+" if self.type_mouvement == 'entree' else "-"
+        return f"{self.variante} : {signe}{abs(self.quantite)} ({self.motif})"
+
+
+class ExpenseCategory(models.Model):
+    nom = models.CharField(max_length=100, verbose_name="Nom de la catégorie")
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Catégorie de charge"
+        verbose_name_plural = "Catégories de charges"
+
+    def __str__(self):
+        return self.nom
+
+class Expense(models.Model):
+    categorie = models.ForeignKey(ExpenseCategory, on_delete=models.CASCADE, related_name='expenses', verbose_name="Catégorie")
+    montant = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Montant (FCFA)")
+    date = models.DateField(verbose_name="Date")
+    description = models.CharField(max_length=255, blank=True, verbose_name="Description")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Charge / Dépense"
+        verbose_name_plural = "Charges / Dépenses"
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.categorie.nom} - {self.montant} F ({self.date})"
+
+
+class Employee(models.Model):
+    """Employé de la boutique — Permet de suivre les salaires dans le bilan financier."""
+    nom = models.CharField(max_length=150, verbose_name="Nom complet")
+    poste = models.CharField(max_length=100, verbose_name="Poste / Fonction", blank=True, default='')
+    salaire_mensuel = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Salaire mensuel (FCFA)")
+    date_embauche = models.DateField(verbose_name="Date d'embauche", null=True, blank=True)
+    est_actif = models.BooleanField(default=True, verbose_name="Actif")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Employé"
+        verbose_name_plural = "Employés"
+        ordering = ['nom']
+
+    def __str__(self):
+        return f"{self.nom} – {self.poste} ({self.salaire_mensuel} F/mois)"
