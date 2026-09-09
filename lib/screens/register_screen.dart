@@ -1,12 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
-
-import '../services/auth_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'login_screen.dart';
-import 'otp_screen.dart';
-import 'main_scaffold.dart';
-import 'social_phone_screen.dart';
+import '../services/auth_service.dart';
+import '../config/router.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -86,14 +84,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => OtpScreen(
-                phoneNumber: result['phone_number'] ?? '+226${_phoneController.text.trim()}',
-                purpose: 'register',
-              ),
-            ),
-          );
+          context.push(AppRoutes.otp, extra: {
+            'phoneNumber': result['phone_number'] ?? '+226${_phoneController.text.trim()}',
+            'purpose': 'register',
+          });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -101,9 +95,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const MainScaffold()),
-          );
+          context.go(AppRoutes.home);
         }
       }
     } else {
@@ -204,15 +196,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (result['success']) {
         if (mounted) {
           if (result['requires_phone'] == true) {
-             Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => SocialPhoneScreen(
-                  email: result['email'] ?? '',
-                  name: result['name'] ?? '',
-                  provider: result['provider'] ?? provider,
-                ),
-              ),
-            );
+            context.push(AppRoutes.socialPhone, extra: {
+              'email': result['email'] ?? '',
+              'name': result['name'] ?? '',
+              'provider': result['provider'] ?? provider,
+            });
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -220,10 +208,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 backgroundColor: Colors.green,
               ),
             );
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const MainScaffold()),
-              (route) => false,
-            );
+            context.go(AppRoutes.home);
           }
         }
       } else {
@@ -497,9 +482,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const Text("Vous avez déjà un compte ? ", style: TextStyle(color: Colors.grey)),
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (context) => const LoginScreen()),
-                          );
+                          context.go(AppRoutes.login);
                         },
                         child: Text(
                           "Se connecter",

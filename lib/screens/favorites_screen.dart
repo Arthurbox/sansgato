@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, unused_element
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../models/product.dart';
 import '../services/favorite_service.dart';
 import '../services/auth_service.dart';
@@ -159,7 +160,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailScreen(product: product)));
+        context.push('/product/${product.id}', extra: product);
       },
       child: Container(
         decoration: BoxDecoration(

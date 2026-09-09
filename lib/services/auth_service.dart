@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../config/api_config.dart';
 import '../utils/global_navigator.dart';
 import '../screens/login_screen.dart';
@@ -65,11 +64,7 @@ class AuthService {
     final context = navigatorKey.currentContext;
     if (context != null) {
       if (!context.mounted) return;
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false,
-      );
+      context.go('/login');
     }
   }
 

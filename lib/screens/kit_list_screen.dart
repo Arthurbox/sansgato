@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../models/kit.dart';
 import '../services/product_service.dart';
 import '../services/auth_service.dart';
-import 'kit_detail_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class KitListScreen extends StatefulWidget {
@@ -69,10 +69,7 @@ class _KitListScreenState extends State<KitListScreen> {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => KitDetailScreen(kit: kit)),
-        );
+        context.push('/kit/${kit.id}', extra: kit);
       },
       child: Container(
         decoration: BoxDecoration(

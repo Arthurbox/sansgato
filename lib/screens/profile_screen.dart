@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
 import '../providers/theme_provider.dart';
-import 'login_screen.dart';
-import 'admin_main_screen.dart';
+import '../config/router.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   void _logout(BuildContext context) {
     AuthService.logout();
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (route) => false,
-    );
+    context.go(AppRoutes.login);
   }
 
   @override
@@ -46,12 +43,7 @@ class ProfileScreen extends ConsumerWidget {
                 leading: const Icon(Icons.admin_panel_settings, color: Color(0xFF00A9C1)),
                 title: const Text('Panneau Administrateur'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AdminMainScreen()),
-                  );
-                },
+                onTap: () => context.push('/admin'),
               ),
             ),
             const SizedBox(height: 24),

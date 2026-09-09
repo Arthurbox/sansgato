@@ -1,5 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../models/cart.dart';
 import '../providers/cart_provider.dart';
 import '../services/auth_service.dart';
@@ -512,9 +514,6 @@ class CartScreen extends ConsumerWidget {
   }
 
   void _goToCheckout(BuildContext context, Cart cart) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CheckoutScreen()),
-    );
+    context.push('/checkout');
   }
 }

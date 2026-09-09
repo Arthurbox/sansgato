@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
 import '../providers/product_provider.dart';
-import 'login_screen.dart';
+import '../config/router.dart';
 import 'admin/admin_product_list_screen.dart';
 
 class AdminMainScreen extends ConsumerStatefulWidget {
@@ -23,10 +24,7 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
 
   void _logout() {
     AuthService.logout();
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (route) => false,
-    );
+    context.go(AppRoutes.login);
   }
 
   @override
