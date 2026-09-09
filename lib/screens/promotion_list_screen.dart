@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../models/product.dart';
 import '../models/kit.dart';
 import '../services/product_service.dart';
@@ -166,10 +167,7 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
     final cardColor = isDark ? Colors.grey[850] : Colors.white;
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => KitDetailScreen(kit: kit)),
-        );
+        context.push('/kit/${kit.id}', extra: kit);
       },
       child: Container(
         decoration: BoxDecoration(

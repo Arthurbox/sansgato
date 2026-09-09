@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../models/product.dart';
 import '../services/product_service.dart';
 import '../services/category_service.dart';
@@ -244,7 +245,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailScreen(product: product)));
+        context.push('/product/${product.id}', extra: product);
       },
       child: Container(
         decoration: BoxDecoration(

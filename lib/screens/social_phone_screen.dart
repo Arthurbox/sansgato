@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
-import 'otp_screen.dart';
+import '../config/router.dart';
 
 class SocialPhoneScreen extends StatefulWidget {
   final String email;
@@ -60,14 +61,10 @@ class _SocialPhoneScreenState extends State<SocialPhoneScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => OtpScreen(
-              phoneNumber: result['phone_number'] ?? '+226${_phoneController.text.trim()}',
-              purpose: 'register',
-            ),
-          ),
-        );
+        context.push(AppRoutes.otp, extra: {
+          'phoneNumber': result['phone_number'] ?? '+226${_phoneController.text.trim()}',
+          'purpose': 'register',
+        });
       }
     } else {
       if (mounted) {

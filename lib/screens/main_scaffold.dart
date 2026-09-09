@@ -96,11 +96,15 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
         ref.read(selectedTabProvider.notifier).setTab(index);
       },
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        padding: EdgeInsets.only(top: isSelected ? 0 : 4), // Légère élévation au clic
-        child: Column(
+      child: Semantics(
+        label: 'Onglet $label',
+        selected: isSelected,
+        button: true,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.only(top: isSelected ? 0 : 4),
+          child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Stack(
@@ -167,6 +171,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

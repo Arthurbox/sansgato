@@ -5,13 +5,11 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'firebase_options.dart';
-import 'screens/login_screen.dart';
-import 'screens/main_scaffold.dart';
 import 'services/api_client.dart';
 import 'services/auth_service.dart';
 import 'providers/theme_provider.dart';
 import 'theme/app_theme.dart';
-import 'utils/global_navigator.dart';
+import 'config/router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +17,7 @@ void main() async {
   await initializeDateFormatting('fr_FR', null);
   await AuthService.init();
   ApiClient.initialize();
-  
+
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -42,10 +40,10 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
 
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Sansgato',
       debugShowCheckedModeBanner: false,
-      navigatorKey: navigatorKey,
+      routerConfig: appRouter,
       themeMode: themeMode,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
@@ -59,7 +57,6 @@ class MyApp extends ConsumerWidget {
         Locale('fr', ''),
         Locale('en', ''),
       ],
-      home: AuthService.isAuthenticated ? const MainScaffold() : const LoginScreen(),
     );
   }
 }

@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-
+import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import '../services/auth_service.dart';
-import 'otp_screen.dart';
-import 'main_scaffold.dart';
-
-import 'register_screen.dart';
-import 'social_phone_screen.dart';
+import '../config/router.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -63,18 +59,12 @@ class _LoginScreenState extends State<LoginScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => OtpScreen(
-                phoneNumber: result['phone_number'] ?? _phoneController.text.trim(),
-                purpose: 'login',
-              ),
-            ),
-          );
+          context.push(AppRoutes.otp, extra: {
+            'phoneNumber': result['phone_number'] ?? _phoneController.text.trim(),
+            'purpose': 'login',
+          });
         } else {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const MainScaffold()),
-          );
+          context.go(AppRoutes.home);
         }
       }
     } else {
@@ -158,15 +148,11 @@ class _LoginScreenState extends State<LoginScreen> {
       if (result['success']) {
         if (mounted) {
           if (result['requires_phone'] == true) {
-             Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => SocialPhoneScreen(
-                  email: result['email'] ?? '',
-                  name: result['name'] ?? '',
-                  provider: result['provider'] ?? provider,
-                ),
-              ),
-            );
+            context.push(AppRoutes.socialPhone, extra: {
+              'email': result['email'] ?? '',
+              'name': result['name'] ?? '',
+              'provider': result['provider'] ?? provider,
+            });
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -174,10 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 backgroundColor: Colors.green,
               ),
             );
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const MainScaffold()),
-              (route) => false,
-            );
+            context.go(AppRoutes.home);
           }
         }
       } else {
@@ -378,11 +361,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const RegisterScreen(),
-                            ),
-                          );
+                          context.go(AppRoutes.register);
                         },
                         child: Text(
                           "Créer un compte",
@@ -409,8 +388,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Google
-                      InkWell(
-                        onTap: _isLoading ? null : () => _handleSocialLogin('google'),
+                      Semantics(
+                        label: 'Se connecter avec Google',
+                        button: true,
+                        child: InkWell(
+                          onTap: _isLoading ? null : () => _handleSocialLogin('google'),
                         borderRadius: BorderRadius.circular(30),
                         child: Container(
                           width: 50,
@@ -423,12 +405,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Center(
                             child: Text('G', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87)),
                           ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 20),
                       // Facebook
-                      InkWell(
-                        onTap: _isLoading ? null : () => _handleSocialLogin('facebook'),
+                      Semantics(
+                        label: 'Se connecter avec Facebook',
+                        button: true,
+                        child: InkWell(
+                          onTap: _isLoading ? null : () => _handleSocialLogin('facebook'),
                         borderRadius: BorderRadius.circular(30),
                         child: Container(
                           width: 50,
@@ -441,23 +427,28 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: const Center(
                             child: Icon(Icons.facebook, color: Color(0xFF1877F2), size: 30),
                           ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 20),
                       // Apple
-                      InkWell(
-                        onTap: () {}, // Not implemented yet
-                        borderRadius: BorderRadius.circular(30),
-                        child: Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
-                            color: inputFillColor,
-                          ),
-                          child: Center(
-                            child: Icon(Icons.apple, color: isDark ? Colors.white : Colors.black, size: 30),
+                      Semantics(
+                        label: 'Se connecter avec Apple',
+                        button: true,
+                        child: InkWell(
+                          onTap: () {}, // Not implemented yet
+                          borderRadius: BorderRadius.circular(30),
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
+                              color: inputFillColor,
+                            ),
+                            child: Center(
+                              child: Icon(Icons.apple, color: isDark ? Colors.white : Colors.black, size: 30),
+                            ),
                           ),
                         ),
                       ),

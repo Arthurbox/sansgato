@@ -1,8 +1,9 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, unused_element
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
-import 'main_scaffold.dart';
+import '../config/router.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -70,10 +71,7 @@ class _OtpScreenState extends State<OtpScreen> {
         );
         
         // Aller sur l'accueil ou l'admin selon le rôle et effacer toute la pile de navigation
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const MainScaffold()),
-          (route) => false,
-        );
+        context.go(AppRoutes.home);
       }
     } else {
       if (mounted) {

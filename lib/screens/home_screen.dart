@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, unused_element
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
 import '../models/product.dart';
 import '../providers/product_provider.dart';
@@ -8,9 +9,6 @@ import '../providers/cart_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../widgets/swipeable_add_to_cart_button.dart';
 import '../widgets/feed_skeleton_loader.dart';
-
-import 'product_detail_screen.dart';
-import 'notifications_screen.dart';
 import '../providers/notification_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -181,7 +179,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           // Icône notification
           GestureDetector(
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())),
+            onTap: () => context.push('/notifications'),
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -331,10 +329,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ProductDetailScreen(product: product)),
-        ),
+        onTap: () => context.push('/product/${product.id}', extra: product),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -546,10 +541,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ProductDetailScreen(product: product)),
-        ),
+        onTap: () => context.push('/product/${product.id}', extra: product),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -864,7 +856,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailScreen(product: product))),
+        onTap: () => context.push('/product/${product.id}', extra: product),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
